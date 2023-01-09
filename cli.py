@@ -120,7 +120,7 @@ class CLICountDownTimer:
                     self.timer_paused_event.on_next(False)
                 elif pressed_key == " " and (not self.timer_paused and not self.time_depleted):
                     self.timer_paused_event.on_next(True)
-                elif pressed_key == "r":
+                elif pressed_key == "r" and (self.time_depleted or self.timer_paused):
                     self.restart()
                 elif pressed_key == "s" and not (self.timer_paused or self.time_depleted):
                     self.start()
