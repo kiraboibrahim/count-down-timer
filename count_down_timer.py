@@ -2,7 +2,7 @@ from collections import namedtuple
 
 import rx
 from rx.core import Observable
-from rx.subject import Subject, BehaviorSubject
+from rx.subject import BehaviorSubject
 from rx.operators import do_action, map
 
 
@@ -21,22 +21,12 @@ class CountDownTimer:
 
         self.depleted = BehaviorSubject(False)
 
-
     @property
     def time_remaining(self) -> Observable:
-        """
-            Property that holds the remaining time, the tick and get_remaining_time have defined
-            here using the methods, will introduce unnecessary parameters
-        """
-        def tick(_) -> None:
-            self._tick()
-        
-        def get_remaining_time(_) -> Time:
-            return Time(self._remaining_minutes, self._remaining_seconds)
 
         return rx.timer(0.0, period=1).pipe(
-            do_action(tick),
-            map(get_remaining_time)
+            do_action(lambda _, this=self: this._tick()),
+            map(lambda _, this=self: Time(this._remaining_minutes, this._remaining_seconds))
         )
 
     def _tick(self) -> None:
