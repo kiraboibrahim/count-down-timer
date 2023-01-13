@@ -12,11 +12,14 @@ I doesn't matter if you are a GUI or Command line freak, I have got you covered.
 
 `pip install -r requirements.txt`
 
-### Running the CLI Version
+### CLI Version
 
-`python cli.py`
+`python cli.py -m <minutes>`
 
-### Running the GUI Version
+### Usage Help
+`python cli.py --help`
+
+### GUI Version
 
 `python gui.py
 `
