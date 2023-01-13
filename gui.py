@@ -5,7 +5,7 @@ from tkinter import ttk
 sys.path.insert(0, ".")
 
 from count_down_timer import Time, CountDownTimer
-
+from utils import is_int, value_exceeds_max
 
 class TimerControls(ttk.Frame):
     def __init__(self, root: tk.Tk | ttk.Frame = None):
@@ -118,7 +118,7 @@ class TimerDurationForm(ttk.Frame):
         return self._valid_minutes and self._valid_seconds
 
     def validate_minutes(self, minutes) -> bool:
-        if self.is_int(minutes) and not self.value_exceeds_max(minutes, 59):
+        if is_int(minutes) and not value_exceeds_max(minutes, 59):
             self._minutes_error_tracker.set("")
             self._valid_minutes = True
         else:
@@ -127,25 +127,13 @@ class TimerDurationForm(ttk.Frame):
         return self._valid_minutes
 
     def validate_seconds(self, seconds) -> bool:
-        if self.is_int(seconds) and not self.value_exceeds_max(seconds, 59):
+        if is_int(seconds) and not value_exceeds_max(seconds, 59):
             self._seconds_error_tracker.set("")
             self._valid_seconds = True
         else:
             self._seconds_error_tracker.set("Only integers less than 60")
             self._valid_seconds = False
         return self._valid_seconds
-
-    @staticmethod
-    def value_exceeds_max(value, max_value) -> bool:
-        return int(value) > max_value
-
-    @staticmethod
-    def is_int(value):
-        try:
-            int(value)
-        except ValueError:
-            return False
-        return True
 
     def render(self) -> None:
         self._minutes_entry_label.grid(row=0, column=0, sticky=tk.W)
