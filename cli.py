@@ -1,6 +1,7 @@
 import sys
 import curses
 import pygame
+import argparse
 from rx.subject import BehaviorSubject
 
 sys.path.insert(0, ".")
@@ -17,9 +18,9 @@ class TimerWindow:
         self.window_width = 40
         self.window_height = 10
         self.window_begin_y = 5
-        self.window_begin_x = (self.parent_window_width - self.window_width)//2 + 2
+        self.window_begin_x = (self.parent_window_width - self.window_width) // 2 + 2
         self.window = curses.newwin(self.window_height, self.window_width, self.window_begin_y, self.window_begin_x)
-    
+
     def render_remaining_time(self, t: Time) -> None:
         self.window.clear()
         time_remaining = format_time(t)
@@ -36,7 +37,7 @@ class ControlsHelpWindow:
         self.window_begin_y = self.parent_window_height - self.window_height
         self.window_begin_x = 0
         self.window = curses.newwin(self.window_height, self.window_width, self.window_begin_y, self.window_begin_x)
-        
+
         self.controls_help = {
             "[q]": "Quit",
             "[space]": "Pause | Resume",
@@ -65,7 +66,7 @@ class ControlsHelpWindow:
             self.window.addstr(begin_y, begin_x, control_help_text, curses.A_REVERSE)
             begin_x += len(control_help_text) + right_margin_size
         self.window.refresh()
-    
+
 
 class CLICountDownTimer:
     def __init__(self, minutes, seconds) -> None:
@@ -73,7 +74,7 @@ class CLICountDownTimer:
         self.count_down_timer = CountDownTimer(self.timer_duration)
         self.time_remaining_subscription = None
         self.time_depleted_subscription = None
-        
+
         self.time_depleted = False
         self.time_depleted_sound = pygame.mixer.Sound("./sounds/door-bell-sound.wav")
         self.timer_paused = False
@@ -100,12 +101,12 @@ class CLICountDownTimer:
         self.run_event_loop()
 
     def render_title(self) -> None:
-        self.main_window.addstr(0, (self.main_window_width - len(self.title))//2, self.title, curses.color_pair(1))
+        self.main_window.addstr(0, (self.main_window_width - len(self.title)) // 2, self.title, curses.color_pair(1))
         self.main_window.refresh()
-    
 
     def start(self) -> None:
-        self.time_remaining_subscription = self.count_down_timer.time_remaining.subscribe(self.timer_window.render_remaining_time)
+        self.time_remaining_subscription = self.count_down_timer.time_remaining.subscribe(
+            self.timer_window.render_remaining_time)
         self.time_depleted_subscription = self.count_down_timer.depleted.subscribe(self.on_time_depleted)
         self.timer_paused_subscription = self.timer_paused_event.subscribe(self.on_timer_paused)
         self.run_event_loop()
@@ -126,8 +127,8 @@ class CLICountDownTimer:
                     self.start()
         except:
             self.quit()
-        return 
-    
+        return
+
     def quit(self) -> None:
         self.dispose_subscriptions()
         self.quit_timer = True
@@ -170,5 +171,9 @@ class CLICountDownTimer:
             self.timer_paused_subscription.dispose()
 
 
-cli_count_down_timer = CLICountDownTimer(0, 5)
+arg_parser = argparse.ArgumentParser(description="Count Down Timer")
+arg_parser.add_argument("-m", "--minutes", type=int, help="Number of minutes the timer should run", required=True)
+arg_parser.add_argument("-s", "--seconds", type=int, default=0, help="Number of seconds the timer should run")
+args = arg_parser.parse_args()
+cli_count_down_timer = CLICountDownTimer(args.minutes, args.seconds)
 curses.wrapper(cli_count_down_timer.init)
