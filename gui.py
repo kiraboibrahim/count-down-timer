@@ -1,4 +1,5 @@
 import sys
+import pygame
 import tkinter as tk
 from tkinter import ttk
 
@@ -6,6 +7,9 @@ sys.path.insert(0, ".")
 
 from count_down_timer import Time, CountDownTimer
 from utils import is_int, value_exceeds_max
+
+pygame.mixer.init()
+
 
 class TimerControls(ttk.Frame):
     def __init__(self, root: tk.Tk | ttk.Frame = None):
@@ -183,7 +187,7 @@ class GUICountDownTimer(ttk.Frame):
 
         self.time_remaining_subscription = None
         self.time_depleted_subscription = None
-
+        self.time_depleted_sound = pygame.mixer.Sound("sounds/door-bell-sound.wav")
         self.timer_duration_form.render()
 
         self.pack(fill=tk.BOTH, expand=True)
@@ -233,7 +237,12 @@ class GUICountDownTimer(ttk.Frame):
         self.time_remaining_subscription = self.timer.time_remaining.subscribe(lambda time_remaining, this=self: this.time_remaining_display.
                                                                                set_time_remaining(this.format_time(time_remaining)))
         self.time_depleted_subscription = self.timer.depleted.subscribe(lambda time_depleted, this=self:
-                                                                        setattr(this, "time_depleted", time_depleted))
+                                                                        this.on_time_depleted(time_depleted))
+
+    def on_time_depleted(self, time_depleted):
+        self.time_depleted = time_depleted
+        if self.time_depleted:
+            self.time_depleted_sound.play()
 
     def render_timer(self) -> None:
         self.time_remaining_display.render()
